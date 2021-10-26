@@ -79,6 +79,18 @@ def get_users():
     all_users = list(map(lambda x: x.serialize(), users_query))
     return jsonify(all_users)
 
+@app.route('/users/favorites', methods=['GET'])
+@jwt_required()
+def get_user_favorites():
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(id=current_user).first()
+    user_fav_characters = Fav_Character.query.filter_by(user_id=user.id).all()
+    user_fav_characters = list(map(lambda x: x.serialize(), user_fav_characters))
+    user_fav_planets = Fav_Planet.query.filter_by(user_id=user.id).all()
+    user_fav_planets = list(map(lambda x: x.serialize(), user_fav_planets))
+    user_fav = user_fav_characters + user_fav_planets
+    return jsonify(user_fav)
+
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
